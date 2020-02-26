@@ -1,0 +1,22 @@
+{
+  "name": "shrnk-it",
+  "version": "1.0.0",
+  "description": "URL shortener\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[DSimple URL shortener",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "URL",
+    "shortener"
+  ],
+  "author": "Sanghyun Park",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "shortid": "^2.2.15"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
