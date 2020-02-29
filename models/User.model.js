@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
       {
         type: mongoose.Types.ObjectId,
         required: true,
-        ref: "Url"
+        ref: "url"
       }
     ]
   },
@@ -30,4 +30,4 @@ const userSchema = new mongoose.Schema(
 
 userSchema.plugin(uniqueValidator);
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("user", userSchema);

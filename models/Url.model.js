@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const shortid = require("shortid");
 
+const newHash = shortid.generate();
+
 const urlSchema = new mongoose.Schema(
   {
     name: {
@@ -12,15 +14,21 @@ const urlSchema = new mongoose.Schema(
     },
     hash: {
       type: String,
-      default: shortid.generate
+      required: true,
+      default: newHash
+    },
+    shortURL: {
+      type: String,
+      required: true,
+      default: `${process.env.BASE_URL}/${newHash}`
     },
     creator: {
       type: mongoose.Types.ObjectId,
       required: true,
-      ref: "User"
+      ref: "user"
     }
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Url", urlSchema);
+module.exports = mongoose.model("url", urlSchema);

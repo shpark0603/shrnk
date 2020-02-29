@@ -1,10 +1,46 @@
 const mongoose = require("mongoose");
 const { validationResult } = require("express-validator");
 
+//utility functions
 const generateErrMsg = require("../utils/generateErrMsg");
+const normalizeURL = require("../utils/normalizeURL");
 
+const PublicUrl = require("../models/PublicUrl.model");
 const Url = require("../models/Url.model");
 const User = require("../models/User.model");
+
+exports.publicShrink = async (req, res, next) => {
+  const result = validationResult(req);
+
+  if (!result.isEmpty()) {
+    return next({ code: 404, message: generateErrMsg(result) });
+  }
+
+  let { originalURL } = req.body;
+
+  originalURL = normalizeURL(originalURL);
+
+  let url;
+  try {
+    url = await PublicUrl.findOne({ originalURL });
+  } catch (error) {
+    return next({ code: 500 });
+  }
+
+  if (url) {
+    return res.json(url.toObject({ getters: true }));
+  }
+
+  const newURL = new PublicUrl({ originalURL });
+
+  try {
+    await newURL.save();
+  } catch (error) {
+    return next({ code: 500 });
+  }
+
+  res.json(newURL.toObject({ getters: true }));
+};
 
 exports.shrink = async (req, res, next) => {
   const result = validationResult(req);
@@ -15,14 +51,7 @@ exports.shrink = async (req, res, next) => {
 
   let { originalURL, userId } = req.body;
 
-  originalURL = originalURL.toLowerCase();
-
-  if (
-    !originalURL.startsWith("https://") &&
-    !originalURL.startsWith("http://")
-  ) {
-    originalURL = "http://" + originalURL;
-  }
+  originalURL = normalizeURL(originalURL);
 
   let user;
   try {

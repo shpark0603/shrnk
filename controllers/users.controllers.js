@@ -1,5 +1,4 @@
 const User = require("../models/User.model");
-const Url = require("../models/Url.model");
 
 const { validationResult } = require("express-validator");
 const generateErrMsg = require("../utils/generateErrMsg");
@@ -8,7 +7,6 @@ exports.signup = async (req, res, next) => {
   const result = validationResult(req);
 
   if (!result.isEmpty()) {
-    console.log(result.errors);
     return next({
       code: 400,
       message: generateErrMsg(result)

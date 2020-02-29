@@ -8,7 +8,10 @@ const shrinkValidators = [
   check("userId").isMongoId()
 ];
 
+const publicShrinkValidators = [check("originalURL").isURL()];
+
 router.post("/", shrinkValidators, urlControllers.shrink);
+router.post("/public", publicShrinkValidators, urlControllers.publicShrink);
 router.delete("/:urlId", urlControllers.delete);
 
 module.exports = router;
