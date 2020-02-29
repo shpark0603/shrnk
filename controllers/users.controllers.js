@@ -1,7 +1,7 @@
 const User = require("../models/User.model");
+const Url = require("../models/Url.model");
 
 const { validationResult } = require("express-validator");
-
 const { getSignupErrMsg } = require("../utils/errMsgCreators");
 
 exports.signup = async (req, res, next) => {
@@ -54,4 +54,29 @@ exports.login = async (req, res, next) => {
   }
 
   res.json({ message: "Successfully logged in" });
+};
+
+exports.getUrlsByUserId = async (req, res, next) => {
+  const { userId } = req.params;
+
+  let userWithUrls;
+  try {
+    userWithUrls = await User.findById(userId).populate("urls");
+  } catch (error) {
+    return next({ code: 500 });
+  }
+
+  if (!userWithUrls || !userWithUrls.urls.length === 0) {
+    console.log(userWithUrls);
+    console.log(userWithUrls.urls);
+
+    return next({
+      code: 404,
+      message: "Cannot find any shortened url by user id"
+    });
+  }
+
+  res.json({
+    urls: userWithUrls.urls.map(url => url.toObject({ getters: true }))
+  });
 };

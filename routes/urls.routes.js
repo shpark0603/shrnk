@@ -1,7 +1,8 @@
 const router = require("express").Router();
 
-const { shrink } = require("../controllers/urls.controllers");
+const urlControllers = require("../controllers/urls.controllers");
 
-router.post("/", shrink);
+router.post("/", urlControllers.shrink);
+router.delete("/:urlId", urlControllers.delete);
 
 module.exports = router;

@@ -13,5 +13,6 @@ const signupValidators = [
 
 router.post("/signup", signupValidators, usersController.signup);
 router.post("/login", usersController.login);
+router.get("/:userId/urls", usersController.getUrlsByUserId);
 
 module.exports = router;
