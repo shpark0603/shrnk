@@ -1,4 +1,4 @@
-# shrnk-it
+# shrnk
 
 Simple URL shortener
 Built with NodeJS, Express, MongoDB

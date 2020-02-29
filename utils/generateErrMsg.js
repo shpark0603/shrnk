@@ -1,18 +1,20 @@
-exports.getSignupErrMsg = errors => {
-  let validationErrorMessage = "";
+module.exports = result => {
+  let validationErrorMessage = "Invalid ";
 
-  errors.errors.forEach((error, index) => {
+  result.errors.forEach((error, index) => {
     if (index === 0) {
       validationErrorMessage += error.param;
     } else if (
-      index === errors.errors.length - 1 &&
-      errors.errors.length !== 1
+      index === result.errors.length - 1 &&
+      result.errors.length !== 1
     ) {
       validationErrorMessage += ` and ${error.param}`;
     } else {
       validationErrorMessage += `, ${error.param}`;
     }
   });
+
+  validationErrorMessage += ", please try again";
 
   return validationErrorMessage;
 };

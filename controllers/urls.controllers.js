@@ -1,20 +1,33 @@
 const mongoose = require("mongoose");
+const { validationResult } = require("express-validator");
+
+const generateErrMsg = require("../utils/generateErrMsg");
 
 const Url = require("../models/Url.model");
 const User = require("../models/User.model");
 
 exports.shrink = async (req, res, next) => {
-  const { originalURL, userId } = req.body;
+  const result = validationResult(req);
+
+  if (!result.isEmpty()) {
+    return next({ code: 404, message: generateErrMsg(result) });
+  }
+
+  let { originalURL, userId } = req.body;
+
+  originalURL = originalURL.toLowerCase();
+
+  if (
+    !originalURL.startsWith("https://") &&
+    !originalURL.startsWith("http://")
+  ) {
+    originalURL = "http://" + originalURL;
+  }
 
   let user;
-
   try {
     user = await User.findById(userId);
   } catch (error) {
-    if (error.message.startsWith("Cast to ObjectId")) {
-      return next({ code: 400, message: "Not a valid user id" });
-    }
-
     return next({ code: 500 });
   }
 
@@ -24,7 +37,7 @@ exports.shrink = async (req, res, next) => {
 
   let isUrlExisting;
   try {
-    isUrlExisting = await Url.findOne({ originalURL, userId: user.id });
+    isUrlExisting = await Url.findOne({ originalURL, creator: user.id });
   } catch (error) {
     return next({ code: 500 });
   }
@@ -36,7 +49,7 @@ exports.shrink = async (req, res, next) => {
     });
   }
 
-  const newURL = new Url({ originalURL, creator: userId });
+  const newURL = new Url({ originalURL, creator: user.id });
 
   try {
     const session = await mongoose.startSession();

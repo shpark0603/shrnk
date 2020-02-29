@@ -2,15 +2,16 @@ const User = require("../models/User.model");
 const Url = require("../models/Url.model");
 
 const { validationResult } = require("express-validator");
-const { getSignupErrMsg } = require("../utils/errMsgCreators");
+const generateErrMsg = require("../utils/generateErrMsg");
 
 exports.signup = async (req, res, next) => {
-  const errors = validationResult(req);
+  const result = validationResult(req);
 
-  if (!errors.isEmpty()) {
+  if (!result.isEmpty()) {
+    console.log(result.errors);
     return next({
       code: 400,
-      message: `Invalid ${getSignupErrMsg(errors)}, please try again`
+      message: generateErrMsg(result)
     });
   }
 
@@ -53,7 +54,9 @@ exports.login = async (req, res, next) => {
     return next({ code: 400, message: "Invalid credentials" });
   }
 
-  res.json({ message: "Successfully logged in" });
+  // TODO encrypt user password
+  // TODO exclude user password
+  res.json(user.toObject({ getters: true }));
 };
 
 exports.getUrlsByUserId = async (req, res, next) => {

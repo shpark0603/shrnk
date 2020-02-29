@@ -1,5 +1,5 @@
 {
-  "name": "shrnk-it",
+  "name": "shrnk",
   "version": "1.0.0",
   "description": "Simple URL shortener",
   "main": "index.js",
