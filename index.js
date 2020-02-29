@@ -5,12 +5,29 @@ require("dotenv").config();
 const urlsRoutes = require("./routes/urls.routes");
 const usersRoutes = require("./routes/users.routes");
 
+const PublicUrl = require("./models/PublicUrl.model");
+
 const app = express();
 app.use(express.json());
-
 app.use("/api/urls", urlsRoutes);
 app.use("/api/users", usersRoutes);
 
+app.use("/:hash", async (req, res, next) => {
+  const { hash } = req.params;
+
+  let publicUrl;
+  try {
+    publicUrl = await PublicUrl.findOne({ hash });
+  } catch (error) {
+    return next({ code: 500 });
+  }
+
+  if (!publicUrl) {
+    return next();
+  }
+
+  res.redirect(publicUrl.originalURL);
+});
 // unhandled route catcher
 app.use((req, res, next) => {
   next({ code: 404, message: "Page not found" });
