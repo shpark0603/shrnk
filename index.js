@@ -21,12 +21,11 @@ app.use("/:hash", async (req, res, next) => {
   let publicUrl;
   try {
     publicUrl = await PublicUrl.findOne({ hash });
+    if (!publicUrl) {
+      return next();
+    }
   } catch (error) {
     return next({ code: 500 });
-  }
-
-  if (!publicUrl) {
-    return next();
   }
 
   res.redirect(publicUrl.originalURL);
