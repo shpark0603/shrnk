@@ -1,7 +1,8 @@
 const User = require("../models/User.model");
-
 const { validationResult } = require("express-validator");
+
 const generateErrMsg = require("../utils/generateErrMsg");
+const transform = require("../utils/userDocTransform");
 
 exports.signup = async (req, res, next) => {
   const result = validationResult(req);
@@ -15,27 +16,32 @@ exports.signup = async (req, res, next) => {
 
   const { name, email, password } = req.body;
 
-  let isEmailExisting;
-
   try {
-    isEmailExisting = await User.findOne({ email });
+    const isEmailExisting = await User.findOne({ email });
+
+    if (isEmailExisting) {
+      return next({ code: 400, message: "Cannot use this email" });
+    }
   } catch (error) {
     return next({ code: 500 });
   }
 
-  if (isEmailExisting) {
-    return next({ code: 400, message: "Cannot use this email" });
-  }
-
-  const newUser = new User({ name, email, password, urls: [] });
+  const newUser = new User({ name, email, urls: [] });
 
   try {
+    await newUser.setPassword(password);
     await newUser.save();
   } catch (error) {
     return next({ code: 500 });
   }
 
-  res.status(201).json({ user: newUser.toObject({ getters: true }) });
+  const token = newUser.generateToken();
+  res.cookie("access_token", `Bearer ${token}`, {
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    httpOnly: true
+  });
+
+  res.status(201).json(newUser.toObject({ getters: true, transform }));
 };
 
 exports.login = async (req, res, next) => {
@@ -44,17 +50,26 @@ exports.login = async (req, res, next) => {
   let user;
   try {
     user = await User.findOne({ email });
+
+    if (!user) {
+      return next({ code: 400, message: "Invalid credentials" });
+    }
+
+    const isValidPassword = await user.isValid(password);
+    if (!isValidPassword) {
+      return next({ code: 400, message: "Invalid credentials" });
+    }
   } catch (error) {
     return next({ code: 500 });
   }
 
-  if (!user || user.password !== password) {
-    return next({ code: 400, message: "Invalid credentials" });
-  }
+  const token = user.generateToken();
+  res.cookie("access_token", `Bearer ${token}`, {
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    httpOnly: true
+  });
 
-  // TODO encrypt user password
-  // TODO exclude user password
-  res.json(user.toObject({ getters: true }));
+  res.json(user.toObject({ getters: true, transform }));
 };
 
 exports.getUrlsByUserId = async (req, res, next) => {
@@ -63,21 +78,21 @@ exports.getUrlsByUserId = async (req, res, next) => {
   let userWithUrls;
   try {
     userWithUrls = await User.findById(userId).populate("urls");
+    if (!userWithUrls || !userWithUrls.urls.length === 0) {
+      return next({
+        code: 404,
+        message: "Cannot find any shortened url by user id"
+      });
+    }
   } catch (error) {
     return next({ code: 500 });
   }
 
-  if (!userWithUrls || !userWithUrls.urls.length === 0) {
-    console.log(userWithUrls);
-    console.log(userWithUrls.urls);
+  res.json(userWithUrls.urls.map(url => url.toObject({ getters: true })));
+};
 
-    return next({
-      code: 404,
-      message: "Cannot find any shortened url by user id"
-    });
-  }
+exports.logout = async (req, res, next) => {
+  res.cookie("access_token");
 
-  res.json({
-    urls: userWithUrls.urls.map(url => url.toObject({ getters: true }))
-  });
+  res.json({ message: "Logged out" });
 };

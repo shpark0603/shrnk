@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const { validationResult } = require("express-validator");
 
-//utility functions
 const generateErrMsg = require("../utils/generateErrMsg");
 const normalizeURL = require("../utils/normalizeURL");
 
@@ -20,15 +19,13 @@ exports.publicShrink = async (req, res, next) => {
 
   originalURL = normalizeURL(originalURL);
 
-  let url;
   try {
-    url = await PublicUrl.findOne({ originalURL });
+    const url = await PublicUrl.findOne({ originalURL });
+    if (url) {
+      return res.json(url.toObject({ getters: true }));
+    }
   } catch (error) {
     return next({ code: 500 });
-  }
-
-  if (url) {
-    return res.json(url.toObject({ getters: true }));
   }
 
   const newURL = new PublicUrl({ originalURL });
@@ -49,36 +46,35 @@ exports.shrink = async (req, res, next) => {
     return next({ code: 404, message: generateErrMsg(result) });
   }
 
-  let { originalURL, userId } = req.body;
+  let { originalURL } = req.body;
 
   originalURL = normalizeURL(originalURL);
+
+  const { userId } = req.user;
 
   let user;
   try {
     user = await User.findById(userId);
+    if (!user) {
+      return next({ code: 400, message: "Invalid user id" });
+    }
   } catch (error) {
     return next({ code: 500 });
   }
 
-  if (!user) {
-    return next({ code: 400, message: "Not a valid user id" });
-  }
-
-  let isUrlExisting;
   try {
-    isUrlExisting = await Url.findOne({ originalURL, creator: user.id });
+    const isUrlExisting = await Url.findOne({ originalURL, creator: userId });
+    if (isUrlExisting) {
+      return next({
+        code: 400,
+        message: "Shrunk url for this long url already existing"
+      });
+    }
   } catch (error) {
     return next({ code: 500 });
   }
 
-  if (isUrlExisting) {
-    return next({
-      code: 400,
-      message: "Shrunk url for this long url already existing"
-    });
-  }
-
-  const newURL = new Url({ originalURL, creator: user.id });
+  const newURL = new Url({ originalURL, creator: userId });
 
   try {
     const session = await mongoose.startSession();
@@ -99,17 +95,20 @@ exports.shrink = async (req, res, next) => {
 
 exports.delete = async (req, res, next) => {
   const { urlId } = req.params;
+  const { userId } = req.user;
 
   let url;
   try {
     url = await Url.findById(urlId).populate("creator");
-  } catch (error) {
-    console.log(error);
-    return next({ code: 500 });
-  }
+    if (!url) {
+      return next({ code: 404, message: "Shortened Url not found" });
+    }
 
-  if (!url) {
-    return next({ code: 404, message: "Shortened Url not found" });
+    if (url.creator.id !== userId) {
+      return next({ code: 403, message: "Unauthorized" });
+    }
+  } catch (error) {
+    return next({ code: 500 });
   }
 
   try {
@@ -122,11 +121,33 @@ exports.delete = async (req, res, next) => {
 
     await session.commitTransaction();
   } catch (error) {
-    console.log(error);
     return next({ code: 500 });
   }
 
-  res.json({ message: "Successfully deleted shortened url." });
+  res.json({ message: "Shortened url deleted" });
 };
 
-// TODO: setUrlName
+exports.updateName = async (req, res, next) => {
+  const { name } = req.body;
+  const { userId } = req.user;
+  const { urlId } = req.params;
+
+  try {
+    const url = await Url.findById(urlId).populate("creator");
+
+    if (!url) {
+      return next({ code: 404, message: "Shortened url not found" });
+    }
+
+    if (url.creator.id !== userId) {
+      return next({ code: 403, message: "Unauthorized" });
+    }
+
+    url.name = name;
+    await url.save();
+  } catch (error) {
+    return next({ code: 500 });
+  }
+
+  res.json({ message: "Shortened url name updated" });
+};

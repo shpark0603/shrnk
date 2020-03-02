@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 //Routes
 const urlsRoutes = require("./routes/urls.routes");
@@ -9,6 +10,8 @@ const PublicUrl = require("./models/PublicUrl.model");
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
+
 app.use("/api/urls", urlsRoutes);
 app.use("/api/users", usersRoutes);
 
