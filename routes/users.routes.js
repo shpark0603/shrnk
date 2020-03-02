@@ -30,5 +30,6 @@ router.post("/login", usersController.login);
 router.use(checkAuth);
 router.get("/:userId/urls", usersController.getUrlsByUserId);
 router.get("/logout", usersController.logout);
+router.post("/:userId/delete-account", usersController.deleteAccount);
 
 module.exports = router;
