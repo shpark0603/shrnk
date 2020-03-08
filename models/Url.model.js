@@ -1,8 +1,6 @@
 const mongoose = require("mongoose");
 const shortid = require("shortid");
 
-const newHash = shortid.generate();
-
 const urlSchema = new mongoose.Schema(
   {
     name: {
@@ -15,12 +13,7 @@ const urlSchema = new mongoose.Schema(
     hash: {
       type: String,
       required: true,
-      default: newHash
-    },
-    shortURL: {
-      type: String,
-      required: true,
-      default: `${process.env.BASE_URL}/${newHash}`
+      default: shortid.generate
     },
     creator: {
       type: mongoose.Types.ObjectId,
