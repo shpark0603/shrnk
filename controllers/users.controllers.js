@@ -22,7 +22,10 @@ exports.signup = async (req, res, next) => {
     const isEmailExisting = await User.findOne({ email });
 
     if (isEmailExisting) {
-      return next({ code: 400, message: "Cannot use this email" });
+      return next({
+        code: 400,
+        message: "이미 존재하는 이메일입니다."
+      });
     }
   } catch (error) {
     return next({ code: 500 });
@@ -142,4 +145,16 @@ exports.deleteAccount = async (req, res, next) => {
   }
 
   res.json({ message: "Account deleted" });
+};
+
+exports.checkAuth = (req, res, next) => {
+  const { user } = req;
+  console.log(user);
+
+  if (!user) {
+    res.cookie("access_token");
+    return { code: 401, message: "Unauthorized user" };
+  }
+
+  res.json({ message: "인증 성공" });
 };

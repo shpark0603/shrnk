@@ -1,7 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
-const cors = require("cors");
 
 require("dotenv").config();
 //Routes
@@ -11,7 +10,6 @@ const usersRoutes = require("./routes/users.routes");
 const PublicUrl = require("./models/PublicUrl.model");
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 

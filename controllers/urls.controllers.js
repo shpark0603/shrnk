@@ -12,7 +12,7 @@ exports.publicShrink = async (req, res, next) => {
   const result = validationResult(req);
 
   if (!result.isEmpty()) {
-    return next({ code: 404, message: generateErrMsg(result) });
+    return next({ code: 400, message: generateErrMsg(result) });
   }
 
   let { originalURL } = req.body;
