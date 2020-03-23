@@ -149,7 +149,6 @@ exports.deleteAccount = async (req, res, next) => {
 
 exports.checkAuth = (req, res, next) => {
   const { user } = req;
-  console.log(user);
 
   if (!user) {
     res.cookie("access_token");

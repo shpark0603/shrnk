@@ -19,15 +19,6 @@ exports.publicShrink = async (req, res, next) => {
 
   originalURL = normalizeURL(originalURL);
 
-  try {
-    const url = await PublicUrl.findOne({ originalURL });
-    if (url) {
-      return res.json(url.toObject({ getters: true }));
-    }
-  } catch (error) {
-    return next({ code: 500 });
-  }
-
   const newURL = new PublicUrl({ originalURL });
 
   try {
@@ -150,4 +141,47 @@ exports.updateName = async (req, res, next) => {
   }
 
   res.json({ message: "Shortened url name updated" });
+};
+
+exports.batchShrink = async (req, res, next) => {
+  const { userId } = req.user;
+  const { hashes } = req.body;
+
+  let user;
+  try {
+    user = await User.findById(userId);
+    if (!user) {
+      return next({ code: 400, message: "존재하지 않는 사용자입니다." });
+    }
+  } catch (error) {
+    return next({ code: 500 });
+  }
+
+  const newURLs = hashes.map(
+    hash =>
+      new Url({
+        originalURL: hash.originalURL,
+        hash: hash.hash,
+        creator: userId
+      })
+  );
+
+  try {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    await Url.insertMany(newURLs);
+
+    user.urls.push(...newURLs);
+    await user.save({ session });
+
+    session.commitTransaction();
+  } catch (error) {
+    console.error(error);
+    return next({ code: 500 });
+  }
+
+  res.status(201).json({
+    newURLs: newURLs.map(newUrl => newUrl.toObject({ getters: true }))
+  });
 };

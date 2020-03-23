@@ -13,6 +13,7 @@ router.post("/public", publicShrinkValidators, urlControllers.publicShrink);
 router.use(checkAuth);
 
 router.post("/", shrinkValidators, urlControllers.shrink);
+router.post("/batch", urlControllers.batchShrink);
 router.patch("/:urlId", urlControllers.updateName);
 router.delete("/:urlId", urlControllers.delete);
 
