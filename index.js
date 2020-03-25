@@ -35,9 +35,9 @@ app.use("/:hash", async (req, res, next) => {
   res.redirect(publicUrl.originalURL);
 });
 
-app.use((req, res, next) => {
-  res.sendFile(path.resolve(__dirname, "public", "index.html"));
-});
+// app.use((req, res, next) => {
+//   res.sendFile(path.resolve(__dirname, "public", "index.html"));
+// });
 
 // error handler
 app.use((error, req, res, next) => {
