@@ -82,7 +82,10 @@ exports.getUrlsByUserId = async (req, res, next) => {
 
   let userWithUrls;
   try {
-    userWithUrls = await User.findById(userId).populate("urls");
+    userWithUrls = await User.findById(userId).populate({
+      path: "urls",
+      options: { sort: { createdAt: "descending" } }
+    });
     if (!userWithUrls || !userWithUrls.urls.length === 0) {
       return next({
         code: 404,

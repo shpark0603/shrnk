@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
 const cookieParser = require("cookie-parser");
 
 require("dotenv").config();
@@ -12,6 +13,8 @@ const PublicUrl = require("./models/PublicUrl.model");
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(express.static(path.join("public")));
 
 app.use("/api/urls", urlsRoutes);
 app.use("/api/users", usersRoutes);
@@ -31,9 +34,9 @@ app.use("/:hash", async (req, res, next) => {
 
   res.redirect(publicUrl.originalURL);
 });
-// unhandled route catcher
+
 app.use((req, res, next) => {
-  next({ code: 404, message: "Page not found" });
+  res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
 // error handler

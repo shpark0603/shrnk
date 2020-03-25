@@ -3,7 +3,7 @@
 MERN stack(MongoDB, Express, React, NodeJS)으로 제작한 url 단축 웹사이트입니다.
 
 회원은 단축 url을 만들고, 불러오고, 업데이트하고, 삭제할 수 있습니다.
-비회원 또한 단축 url을 만들 수 있지만, 이는 브라우저의 localStorage에 저장되고, 생성 후 1달이 지나면 데이터베이스에서 삭제됩니다.
+비회원 또한 단축 url을 만들 수 있지만, 이는 브라우저의 localStorage에 저장되고, 생성 후 일주일이 지나면 데이터베이스에서 삭제됩니다.
 
 아래와 같은 제삼자 패키지를 사용하였습니다.
 
@@ -45,5 +45,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Todo
 
 1. 비밀번호 변경 이메일 보내기
-2. React로 클라이언트 코드 작성
-3. graphql 도입?
+2. graphql 도입?
