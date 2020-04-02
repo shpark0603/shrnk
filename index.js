@@ -35,9 +35,9 @@ app.use("/:hash", async (req, res, next) => {
   res.redirect(publicUrl.originalURL);
 });
 
-// app.use((req, res, next) => {
-//   res.sendFile(path.resolve(__dirname, "public", "index.html"));
-// });
+app.use((req, res, next) => {
+  res.sendFile(path.resolve(__dirname, "public", "index.html"));
+});
 
 // error handler
 app.use((error, req, res, next) => {
@@ -46,7 +46,7 @@ app.use((error, req, res, next) => {
   }
 
   res.status(error.code || 500).json({
-    message: error.message || "Internal Server Error, please try again."
+    message: error.message || "서버 에러가 발생하였습니다. 다시 시도해주세요."
   });
 });
 

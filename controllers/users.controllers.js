@@ -57,12 +57,18 @@ exports.login = async (req, res, next) => {
     user = await User.findOne({ email });
 
     if (!user) {
-      return next({ code: 400, message: "Invalid credentials" });
+      return next({
+        code: 400,
+        message: "이메일 또는 비밀번호가 일치하지 않습니다."
+      });
     }
 
     const isValidPassword = await user.isValid(password);
     if (!isValidPassword) {
-      return next({ code: 400, message: "Invalid credentials" });
+      return next({
+        code: 400,
+        message: "이메일 또는 비밀번호가 일치하지 않습니다."
+      });
     }
   } catch (error) {
     return next({ code: 500 });
@@ -89,7 +95,7 @@ exports.getUrlsByUserId = async (req, res, next) => {
     if (!userWithUrls || !userWithUrls.urls.length === 0) {
       return next({
         code: 404,
-        message: "Cannot find any shortened url by user id"
+        message: "올바르지 않은 접근입니다. 다시 시도해주세요."
       });
     }
   } catch (error) {
@@ -110,13 +116,13 @@ exports.deleteAccount = async (req, res, next) => {
   const { userId } = req.params;
 
   if (userId !== req.user.userId) {
-    return next({ code: 403, message: "Unauthorized" });
+    return next({ code: 403, message: "권한이 없습니다." });
   }
 
   if (password !== confirmPassword) {
     return next({
       code: 400,
-      message: "password and confirm password must match"
+      message: "패스워드가 일치하지 않습니다."
     });
   }
 
@@ -147,7 +153,7 @@ exports.deleteAccount = async (req, res, next) => {
     return next({ code: 500 });
   }
 
-  res.json({ message: "Account deleted" });
+  res.json({ message: "회원탈퇴가 완료되었습니다." });
 };
 
 exports.checkAuth = (req, res, next) => {
@@ -155,7 +161,7 @@ exports.checkAuth = (req, res, next) => {
 
   if (!user) {
     res.cookie("access_token");
-    return { code: 401, message: "Unauthorized user" };
+    return { code: 401, message: "인증 실패" };
   }
 
   res.json({ message: "인증 성공" });

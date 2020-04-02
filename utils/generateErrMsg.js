@@ -1,5 +1,5 @@
 module.exports = result => {
-  let validationErrorMessage = "Invalid ";
+  let validationErrorMessage = "올바르지 않은 ";
 
   result.errors.forEach((error, index) => {
     if (index === 0) {
@@ -14,7 +14,7 @@ module.exports = result => {
     }
   });
 
-  validationErrorMessage += ", please try again";
+  validationErrorMessage += ", 다시 시도해주세요.";
 
   return validationErrorMessage;
 };

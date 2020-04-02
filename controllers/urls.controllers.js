@@ -47,7 +47,10 @@ exports.shrink = async (req, res, next) => {
   try {
     user = await User.findById(userId);
     if (!user) {
-      return next({ code: 400, message: "Invalid user id" });
+      return next({
+        code: 400,
+        message: "올바르지 않은 접근입니다. 다시 시도해주세요."
+      });
     }
   } catch (error) {
     return next({ code: 500 });
@@ -58,7 +61,7 @@ exports.shrink = async (req, res, next) => {
     if (isUrlExisting) {
       return next({
         code: 400,
-        message: "Shrunk url for this long url already existing"
+        message: "올바르지 않은 접근입니다. 다시 시도해주세요."
       });
     }
   } catch (error) {
@@ -92,11 +95,14 @@ exports.delete = async (req, res, next) => {
   try {
     url = await Url.findById(urlId).populate("creator");
     if (!url) {
-      return next({ code: 404, message: "Shortened Url not found" });
+      return next({
+        code: 404,
+        message: "올바르지 않은 접근입니다. 다시 시도해주세요."
+      });
     }
 
     if (url.creator.id !== userId) {
-      return next({ code: 403, message: "Unauthorized" });
+      return next({ code: 403, message: "권한이 없습니다." });
     }
   } catch (error) {
     return next({ code: 500 });
@@ -115,7 +121,7 @@ exports.delete = async (req, res, next) => {
     return next({ code: 500 });
   }
 
-  res.json({ message: "Shortened url deleted" });
+  res.json({ message: "성공적으로 삭제되었습니다." });
 };
 
 exports.updateName = async (req, res, next) => {
@@ -127,11 +133,14 @@ exports.updateName = async (req, res, next) => {
     const url = await Url.findById(urlId).populate("creator");
 
     if (!url) {
-      return next({ code: 404, message: "Shortened url not found" });
+      return next({
+        code: 404,
+        message: "올바르지 않은 접근입니다. 다시 시도해주세요."
+      });
     }
 
     if (url.creator.id !== userId) {
-      return next({ code: 403, message: "Unauthorized" });
+      return next({ code: 403, message: "권한이 없습니다." });
     }
 
     url.name = name;
@@ -140,7 +149,7 @@ exports.updateName = async (req, res, next) => {
     return next({ code: 500 });
   }
 
-  res.json({ message: "Shortened url name updated" });
+  res.json({ message: "성공적으로 수정되었습니다." });
 };
 
 exports.batchShrink = async (req, res, next) => {
