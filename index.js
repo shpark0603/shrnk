@@ -22,12 +22,9 @@ app.use(express.static(path.join("public")));
 app.use("/api/urls", urlsRoutes);
 app.use("/api/users", usersRoutes);
 
-app.use(
-  ["/", "/urls", "/user-details", "/login", "/signup"],
-  (req, res, next) => {
-    res.sendFile(path.resolve(__dirname, "public", "index.html"));
-  }
-);
+app.use(["/urls", "/user-details", "/login", "/signup"], (req, res, next) => {
+  res.sendFile(path.resolve(__dirname, "public", "index.html"));
+});
 
 app.use("/:hash", async (req, res, next) => {
   const { hash } = req.params;
