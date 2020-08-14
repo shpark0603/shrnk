@@ -1,6 +1,4 @@
-module.exports = originalURL => {
-  originalURL = originalURL.toLowerCase();
-
+module.exports = (originalURL) => {
   if (
     !originalURL.startsWith("https://") &&
     !originalURL.startsWith("http://")
